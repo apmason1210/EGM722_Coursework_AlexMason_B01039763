@@ -1,0 +1,14 @@
+name: HLS_RAG_Assessment
+channels:
+  - esri
+  - conda-forge
+  - defaults
+dependencies:
+  - arcpy
+  - python
+  - geopandas
+  - cartopy
+  - notebook
+  - rasterio
+  - pyepsg
+  - folium
