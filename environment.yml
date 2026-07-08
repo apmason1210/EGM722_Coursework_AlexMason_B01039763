@@ -1,14 +1,16 @@
-name: HLS_RAG_Assessment
+name: egm722
 channels:
-  - esri
   - conda-forge
   - defaults
+  - esri
 dependencies:
-  - arcpy
   - python
   - geopandas
-  - cartopy
-  - notebook
+  - cartopy>=0.21
+  - jupyterlab
+  - ipywidgets
   - rasterio
   - pyepsg
   - folium
+  - ipympl
+  - arcpy
