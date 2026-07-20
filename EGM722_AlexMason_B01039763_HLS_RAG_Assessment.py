@@ -134,4 +134,94 @@ def SlopeAggregate_2to10(): # This function downsamples the Slope 2m resolution 
     
 SlopeAggregate_2to10() # Run the rasample function.
 
+def SlopeClassifyWildcat(): # This function reclassifies the 10m slope dataset from Degrees to 
+                            # numerical values representing classes defined for the Wildcat 
+                            # Slope Requirements in the instruction manual document. 
+    
+    #Set processing environment, matching the parent folder location for the project:
+    env.workspace = r"C:\Users\Lieutenant\EGM722_Coursework_AlexMason_B01039763"
+    
+    # Set the extent of the processing environment using a feature class, defined by the user 
+    # and saved in 'InputDataAOI' folder as a shapefile 'HLS_AOI.shp'.
+    arcpy.env.extent = r"\InputDataAOI\HLS_AOI.shp"
+    
+    # Set local variables:
+    # Set location of the input 10m Slope dataset:
+    inRasterWildcatSlope = "HLS_AOI_10m_Slope.tif"
+
+    # Set the field or band of the raster which holds the numerical slope values in degrees:
+    reclassFieldSlope = "Value"
+
+    # Set the reclassification table as a list of tuples, based on the reclassification table in the instruction document.
+    # 0 to 3 degrees = 3; 3 to 7 degrees = 2; 7 to 90 degrees = 0
+    remapWildcatSlope = RemapRange([[0,3,3],[3,7,2],[7,90,0]])
+    
+    # Execute Reclassify tool
+    outReclassifySlopeWildcat = Reclassify(inRasterWildcatSlope, reclassFieldSlope, remapWildcatSlope, "NODATA")
+
+    # Save the output as raster with format TIF.
+    outReclassifySlopeWildcat.save("outReclassifySlopeWildcat.tif")
+    
+SlopeClassifyWildcat() # Run the reclassification for Wildcat Helicopter requirements.
+
+def SlopeClassifyMerlin(): # This function reclassifies the 10m slope dataset from Degrees to 
+                            # numerical values representing classes defined for the Merlin 
+                            # Slope Requirements in the instruction manual document. 
+    
+    #Set processing environment, matching the parent folder location for the project:
+    env.workspace = r"C:\Users\Lieutenant\EGM722_Coursework_AlexMason_B01039763"
+    
+    # Set the extent of the processing environment using a feature class, defined by the user 
+    # and saved in 'InputDataAOI' folder as a shapefile 'HLS_AOI.shp'.
+    arcpy.env.extent = r"\InputDataAOI\HLS_AOI.shp"
+    
+    # Set local variables:
+    # Set location of the input 10m Slope dataset:
+    inRasterMerlinSlope = "HLS_AOI_10m_Slope.tif"
+
+    # Set the field or band of the raster which holds the numerical slope values in degrees:
+    reclassFieldSlope = "Value"
+
+    # Set the reclassification table as a list of tuples, based on the reclassification table in the instruction document.
+    # 0 to 2 degrees = 3; 2 to 6 degrees = 2; 6 to 9 degrees = 1; 9 to 90 degrees = 0
+    remapMerlinSlope = RemapRange([[0,2,3],[2,6,2],[6,9,1],[9,90,0]])
+    
+    # Execute Reclassify tool
+    outReclassifySlopeMerlin = Reclassify(inRasterMerlinSlope, reclassFieldSlope, remapMerlinSlope, "NODATA")
+
+    # Save the output as raster with format TIF.
+    outReclassifySlopeMerlin.save("outReclassifySlopeMerlin.tif")
+    
+SlopeClassifyMerlin() # Run the reclassification for Wildcat Helicopter requirements.
+
+def SlopeClassifyChinook(): # This function reclassifies the 10m slope dataset from Degrees to 
+                            # numerical values representing classes defined for the Chinook 
+                            # Slope Requirements in the instruction manual document. 
+    
+    #Set processing environment, matching the parent folder location for the project:
+    env.workspace = r"C:\Users\Lieutenant\EGM722_Coursework_AlexMason_B01039763"
+    
+    # Set the extent of the processing environment using a feature class, defined by the user 
+    # and saved in 'InputDataAOI' folder as a shapefile 'HLS_AOI.shp'.
+    arcpy.env.extent = r"\InputDataAOI\HLS_AOI.shp"
+    
+    # Set local variables:
+    # Set location of the input 10m Slope dataset:
+    inRasterChinookSlope = "HLS_AOI_10m_Slope.tif"
+
+    # Set the field or band of the raster which holds the numerical slope values in degrees:
+    reclassFieldSlope = "Value"
+
+    # Set the reclassification table as a list of tuples, based on the reclassification table in the instruction document.
+    # 0 to 6 degrees = 3; 6 to 7 degrees = 2; 7 to 10 degrees = 1; 10 to 90 degrees = 0
+    remapChinookSlope = RemapRange([[0,6,3],[6,7,2],[7,10,1],[10,90,0]])
+    
+    # Execute Reclassify tool
+    outReclassifySlopeChinook = Reclassify(inRasterChinookSlope, reclassFieldSlope, remapChinookSlope, "NODATA")
+
+    # Save the output as raster with format TIF.
+    outReclassifySlopeChinook.save("outReclassifySlopeChinook.tif")
+    
+SlopeClassifyChinook() # Run the reclassification for Wildcat Helicopter requirements.
+
 
