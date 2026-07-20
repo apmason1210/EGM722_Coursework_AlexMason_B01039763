@@ -5,6 +5,9 @@ from arcpy import env
 from arcpy.sa import *
 
 def LULC_Reclassify():
+    # Set the extent of the processing environment using a feature class, defined by the user and saved in 'InputDataAOI' folder as a shapefile 'HLS_AOI.shp'.
+    arcpy.env.extent = r"C:\Users\Lieutenant\EGM722_Coursework_AlexMason_B01039763\InputDataAOI\HLS_AOI.shp"
+    
     #Set processing environment, matching the folder location of the input LULC raster tile.
     env.workspace = r"C:\Users\Lieutenant\EGM722_Coursework_AlexMason_B01039763\InputDataLULC"
 
@@ -68,7 +71,67 @@ def Mosaic_DEM():  #Mosaic the DEM tiles to a New Raster covering only the AOI p
 
 Mosaic_DEM() # Run the Mosaic DEM function.
 
-    
+def Slope_2m(): # This function uses the Slope tool to first calculate Slope of the DTM in Degrees, 
+                        # with horizontal pixel resolution matching the input DTM.
+                            
+    # Set processing environment, matching the folder location of the input 2m DTM raster 'HLS_AOI_2m_DEM.tif'.
+    arcpy.env.workspace = r"C:\Users\Lieutenant\EGM722_Coursework_AlexMason_B01039763"
 
+    # Pick up the name of the 2m DTM raster from the Mosaic function:
+    inRaster = "HLS_AOI_2m_DEM.tif"  
+
+    # specify the file namew of the ouput slope dataset:
+    outRaster = "HLS_AOI_2m_Slope.tif" 
+    
+    # output the Slope as Degrees:
+    outMeasurement = "DEGREE" 
+
+    # Set the vertical scaling factor (z-factor) as 1. 
+    # No scaling is required because the input DTM is horizontal units metres, and vertical units metres.
+    zFactor = "1" 
+    
+    # Set the METHOD for the calculation based on planar (flat earth):
+    method = "PLANAR"
+    
+    # Set the vertical Z value unit, as metres, to match the input DTM 2m raster:
+    zUnit = "METER"
+
+    # Execute Slope tool:
+    arcpy.ddd.Slope(inRaster, outRaster, outMeasurement, zFactor, method, zUnit)
+    
+Slope_2m() # Run the Slope analysis function.
+
+def SlopeAggregate_2to10(): # This function downsamples the Slope 2m resolution to a 10m resolution raster,
+                        # while also also matching the geometry of the reclassified Land Use / Land Cover (LULC) 10m raster.
+    
+    # Set processing environment, matching the parent folder location for the analysis workflow:
+    arcpy.env.workspace = r"C:\Users\Lieutenant\EGM722_Coursework_AlexMason_B01039763"
+    
+    # Set the extent environment to match the LULC reclassified raster:
+    arcpy.env.extent = "\InputDataLULC\outReclassifyLULC.tif"
+
+    # Define the input raster:
+    in_raster = "HLS_AOI_2m_Slope.tif"
+    
+    # Define the Cell Factor to agreggate by. In this case, we are aggregating from 2m to 10m so a factor of 5:
+    cell_factor = "5"
+    
+    # Define the aggregation statistical method:
+    aggregation_type = "MEAN" # This setting defines that the MEAN values of the input slope cells are calculated and recorded to the output.
+    
+    # Define the Extent Handling method:
+    extent_handling = "EXPAND" # This setting ensure the boundaries of the output raster are expanded from the input raster, 
+                                # if required, to match the geometry.
+    
+    # Define how to handle cells with No Data:
+    ignore_nodata = "DATA" # This setting ignores pixels with NoData when aggregating to the larger pixel.
+    
+    # Execute Aggregate
+    outSlope10m = Aggregate(in_raster, cell_factor, aggregation_type, extent_handling, ignore_nodata)
+
+    # Save the output to the environment workspace as a raster of data type TIF: 
+    outSlope10m.save("HLS_AOI_10m_Slope.tif")
+    
+SlopeAggregate_2to10() # Run the rasample function.
 
 
