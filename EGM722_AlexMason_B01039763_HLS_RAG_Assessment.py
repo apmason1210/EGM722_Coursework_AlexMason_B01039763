@@ -4,6 +4,8 @@ import arcpy
 from arcpy import env  
 from arcpy.sa import *
 
+# SORT OUT A DEFINED HLS EXTENT and FOLDER EXTENT AND REPLACE WITHIN EACH FUNCTION (to make it tidier).
+
 def LULC_Reclassify():
     # Set the extent of the processing environment using a feature class, defined by the user and saved in 'InputDataAOI' folder as a shapefile 'HLS_AOI.shp'.
     arcpy.env.extent = r"C:\Users\Lieutenant\EGM722_Coursework_AlexMason_B01039763\InputDataAOI\HLS_AOI.shp"
