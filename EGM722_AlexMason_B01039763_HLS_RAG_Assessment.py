@@ -224,4 +224,91 @@ def SlopeClassifyChinook(): # This function reclassifies the 10m slope dataset f
     
 SlopeClassifyChinook() # Run the reclassification for Wildcat Helicopter requirements.
 
+def Wildcat_Multicriteria(): # This function sets up the multicriteria analysis process for the Wildcat Helicopter.
+    
+    # Set processing environment, matching the parent folder location for the project:
+    env.workspace = r"C:\Users\Lieutenant\EGM722_Coursework_AlexMason_B01039763"
+    
+    # Set the extent of the processing environment using a feature class, defined by the user 
+    # and saved in 'InputDataAOI' folder as a shapefile 'HLS_AOI.shp'.
+    arcpy.env.extent = r"\InputDataAOI\HLS_AOI.shp"
+
+    # Set local variables
+    inRasterLULC = r"\InputDataLULC\outReclassifyLULC.tif"
+    inRasterWildcatSlope = "outReclassifySlopeWildcat.tif"
+
+    remapLULC = RemapValue([[0,"Restricted"],[1,1],[2,2],[3,3],["NODATA","NODATA"]]) # Define the remap table for the LULC classified raster. Value, remapped value pairs.
+    remapWildcatSlope = RemapValue([[0,"Restricted"],[2,2],[3,3],["NODATA","NODATA"]]) # Define the remap table for the Wildcat Slope classified raster. Value, remapped value pairs.
+    
+    # Define the Weighted Overlay table for the Wildcat Helicopter, using the remap tables defined above:
+    myWOTableWildcat = WOTable([[inRasterLULC, 50, "VALUE", remapLULC], # Assign 50% weighting to the LULC data.
+                     [inRasterWildcatSlope, 50, "VALUE", remapWildcatSlope], # Assign 50% weighting to the Wildcat Slope data.
+					          ], [1, 3, 1])    # Define the numerical scale for the output values. Minimum value, maximum value, and interval.
+
+    # Execute WeightedOverlay
+    outWeightedOverlayWildcat = WeightedOverlay(myWOTableWildcat)
+
+    # Save the output
+    outWeightedOverlayWildcat.save("outWeightedOverlayWildcat.tif")
+    
+Wildcat_Multicriteria() # Run the weighted multicriteria analysis for Wildcat Helicopter requirements.
+
+def Merlin_Multicriteria(): # This function sets up the multicriteria analysis process for the Merlin Helicopter.
+    
+    # Set processing environment, matching the parent folder location for the project:
+    env.workspace = r"C:\Users\Lieutenant\EGM722_Coursework_AlexMason_B01039763"
+    
+    # Set the extent of the processing environment using a feature class, defined by the user 
+    # and saved in 'InputDataAOI' folder as a shapefile 'HLS_AOI.shp'.
+    arcpy.env.extent = r"\InputDataAOI\HLS_AOI.shp"
+
+    # Set local variables
+    inRasterLULC = r"\InputDataLULC\outReclassifyLULC.tif"
+    inRasterMerlinSlope = "outReclassifySlopeMerlin.tif"
+
+    remapLULC = RemapValue([[0,"Restricted"],[1,1],[2,2],[3,3],["NODATA","NODATA"]]) # Define the remap table for the LULC classified raster. Value, remapped value pairs.
+    remapMerlinSlope = RemapValue([[0,"Restricted"],[1,1],[2,2],[3,3],["NODATA","NODATA"]]) # Define the remap table for the Merlin Slope classified raster. Value, remapped value pairs.
+    
+    # Define the Weighted Overlay table for the Merlin Helicopter, using the remap tables defined above:
+    myWOTableMerlin = WOTable([[inRasterLULC, 50, "VALUE", remapLULC], # Assign 50% weighting to the LULC data.
+                     [inRasterMerlinSlope, 50, "VALUE", remapMerlinSlope], # Assign 50% weighting to the Merlin Slope data.
+					          ], [1, 3, 1])    # Define the numerical scale for the output values. Minimum value, maximum value, and interval.
+
+    # Execute WeightedOverlay
+    outWeightedOverlayMerlin = WeightedOverlay(myWOTableMerlin)
+
+    # Save the output
+    outWeightedOverlayMerlin.save("outWeightedOverlayMerlin.tif")
+    
+Merlin_Multicriteria() # Run the weighted multicriteria analysis for Merlin Helicopter requirements.
+
+def Chinook_Multicriteria(): # This function sets up the multicriteria analysis process for the Chinook Helicopter.
+    
+    #Set processing environment, matching the parent folder location for the project:
+    env.workspace = r"C:\Users\Lieutenant\EGM722_Coursework_AlexMason_B01039763"
+    
+    # Set the extent of the processing environment using a feature class, defined by the user 
+    # and saved in 'InputDataAOI' folder as a shapefile 'HLS_AOI.shp'.
+    arcpy.env.extent = r"\InputDataAOI\HLS_AOI.shp"
+
+    # Set local variables
+    inRasterLULC = r"\InputDataLULC\outReclassifyLULC.tif"
+    inRasterChinookSlope = "outReclassifySlopeChinook.tif"
+
+    remapLULC = RemapValue([[0,"Restricted"],[1,1],[2,2],[3,3],["NODATA","NODATA"]]) # Define the remap table for the LULC classified raster. Value, remapped value pairs.
+    remapChinookSlope = RemapValue([[0,"Restricted"],[1,1],[2,2],[3,3],["NODATA","NODATA"]]) # Define the remap table for the Chinook Slope classified raster. Value, remapped value pairs.
+    
+    # Define the Weighted Overlay table for the Chinook Helicopter, using the remap tables defined above:
+    myWOTableChinook = WOTable([[inRasterLULC, 50, "VALUE", remapLULC], # Assign 50% weighting to the LULC data.
+                     [inRasterChinookSlope, 50, "VALUE", remapChinookSlope], # Assign 50% weighting to the Chinook Slope data.
+					          ], [1, 3, 1])    # Define the numerical scale for the output values. Minimum value, maximum value, and interval.
+
+    # Execute WeightedOverlay
+    outWeightedOverlayChinook = WeightedOverlay(myWOTableChinook)
+
+    # Save the output
+    outWeightedOverlayChinook.save("outWeightedOverlayChinook.tif")
+    
+Chinook_Multicriteria() # Run the weighted multicriteria analysis for Chinook Helicopter requirements.
+
 
