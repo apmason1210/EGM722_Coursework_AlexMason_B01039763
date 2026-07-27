@@ -4,19 +4,29 @@ import arcpy
 from arcpy import env  
 from arcpy.sa import *
 
-# SORT OUT A DEFINED HLS EXTENT and FOLDER EXTENT AND REPLACE WITHIN EACH FUNCTION (to make it tidier).
+# Set processing environment, matching the folder location of the repository.
+home_folder = r"C:\Users\Lieutenant\EGM722_Coursework_AlexMason_B01039763" # Change this file path to match your repository location.
+ 
+# Set the extent of the processing environment using a feature class, defined by the user and saved in 'InputDataAOI' folder as a shapefile 'HLS_AOI.shp'.
+process_extent = r"C:\Users\Lieutenant\EGM722_Coursework_AlexMason_B01039763\InputDataAOI\HLS_AOI.shp" # Input the file location of the HLS_AOI shapefile here.
+
+# Set coordinate system to match the input DEMs and LULC, in this workflow case as British National Grid - BNG:
+coords = r"C:\Users\Lieutenant\EGM722_Coursework_AlexMason_B01039763\BNG.prj"
+
+
+print('Running LULC Reclassification.')
 
 def LULC_Reclassify():
-    # Set the extent of the processing environment using a feature class, defined by the user and saved in 'InputDataAOI' folder as a shapefile 'HLS_AOI.shp'.
-    arcpy.env.extent = r"C:\Users\Lieutenant\EGM722_Coursework_AlexMason_B01039763\InputDataAOI\HLS_AOI.shp"
+    # Set processing environment, defined above as process_extent, matching the file path of the HLS_AOI polygon shapefile.
+    arcpy.env.extent = process_extent
     
-    #Set processing environment, matching the folder location of the input LULC raster tile.
-    env.workspace = r"C:\Users\Lieutenant\EGM722_Coursework_AlexMason_B01039763\InputDataLULC"
+    # Set processing environment, defined above as home_folder, matching the repository file path.
+    env.workspace = home_folder
 
     # Set local variables:
     # Set location of the input LULC dataset.
-    inRasterLULC = r"C:\Users\Lieutenant\EGM722_Coursework_AlexMason_B01039763\InputDataLULC\LCM.tif"
-
+    inRasterLULC = r"\InputDataLULC\LCM.tif"
+    
     # Set the field or band of the raster which holds the numerical land classes.
     reclassFieldLULC = "Value"
 
@@ -31,10 +41,14 @@ def LULC_Reclassify():
 
 LULC_Reclassify()
 
+print('LULC Reclassification complete')
+
+print('Running Mosaic DEMs.')
+
 def Mosaic_DEM():  #Mosaic the DEM tiles to a New Raster covering only the AOI polygon area.
-    
-    # Set the extent of the processing environment using a feature class, defined by the user and saved in 'InputDataAOI' folder as a shapefile 'HLS_AOI.shp'.
-    arcpy.env.extent = r"C:\Users\Lieutenant\EGM722_Coursework_AlexMason_B01039763\InputDataAOI\HLS_AOI.shp"
+      
+    # Set processing environment, defined above as process_extent, matching the file path of the HLS_AOI polygon shapefile.
+    arcpy.env.extent = process_extent
         
     # Set processing environment, matching the folder location of the input DEM raster tiles 'InputDataDEM'.
     arcpy.env.workspace = r"C:\Users\Lieutenant\EGM722_Coursework_AlexMason_B01039763\InputDataDEM"
@@ -45,14 +59,15 @@ def Mosaic_DEM():  #Mosaic the DEM tiles to a New Raster covering only the AOI p
             print(raster)
 
     # Set output raster folder location:
-    outputDEM_Folder = r"C:\Users\Lieutenant\EGM722_Coursework_AlexMason_B01039763"
+    # outputDEM_Folder = r"C:\Users\Lieutenant\EGM722_Coursework_AlexMason_B01039763"
+    outputDEM_Folder = home_folder
 
     # Set Ouput DEM file name:
     outputDEM_File = "HLS_AOI_2m_DEM.tif"
 
-    # Set coordinate system to match the input DEMs:
-    DEM_CoordinateSystem = r"C:\Users\Lieutenant\EGM722_Coursework_AlexMason_B01039763\BNG.prj" # the .prj file is provided in the github repository, specifically for British National Grid.
-
+    # Set coordinate system to match the input DEMs, coords is defined in script header:
+    DEM_CoordinateSystem = coords
+    
     # Set pixel type, matching the National LiDAR Programme input tiles, 32 bit float.
     pixel_type = "32_BIT_FLOAT"
 
@@ -73,16 +88,20 @@ def Mosaic_DEM():  #Mosaic the DEM tiles to a New Raster covering only the AOI p
 
 Mosaic_DEM() # Run the Mosaic DEM function.
 
+print('Mosaic DEMs complete.')
+
+print('Running Slope calculation.')
+
 def Slope_2m(): # This function uses the Slope tool to first calculate Slope of the DTM in Degrees, 
-                        # with horizontal pixel resolution matching the input DTM.
+                # with horizontal pixel resolution matching the input DTM.
                             
     # Set processing environment, matching the folder location of the input 2m DTM raster 'HLS_AOI_2m_DEM.tif'.
-    arcpy.env.workspace = r"C:\Users\Lieutenant\EGM722_Coursework_AlexMason_B01039763"
+    arcpy.env.workspace = home_folder
 
     # Pick up the name of the 2m DTM raster from the Mosaic function:
     inRaster = "HLS_AOI_2m_DEM.tif"  
 
-    # specify the file namew of the ouput slope dataset:
+    # specify the file name of the ouput slope dataset:
     outRaster = "HLS_AOI_2m_Slope.tif" 
     
     # output the Slope as Degrees:
@@ -103,14 +122,18 @@ def Slope_2m(): # This function uses the Slope tool to first calculate Slope of 
     
 Slope_2m() # Run the Slope analysis function.
 
+print('Slope calculation complete.')
+
+print('Downsampling Slope.')
+
 def SlopeAggregate_2to10(): # This function downsamples the Slope 2m resolution to a 10m resolution raster,
-                        # while also also matching the geometry of the reclassified Land Use / Land Cover (LULC) 10m raster.
+                            # while also also matching the geometry of the reclassified Land Use / Land Cover (LULC) 10m raster.
     
-    # Set processing environment, matching the parent folder location for the analysis workflow:
-    arcpy.env.workspace = r"C:\Users\Lieutenant\EGM722_Coursework_AlexMason_B01039763"
+    # Set processing environment, matching the parent folder location for the analysis workflow, defined in script header as home_folder:
+    arcpy.env.workspace = home_folder
     
     # Set the extent environment to match the LULC reclassified raster:
-    arcpy.env.extent = "\InputDataLULC\outReclassifyLULC.tif"
+    arcpy.env.extent = "\outReclassifyLULC.tif"
 
     # Define the input raster:
     in_raster = "HLS_AOI_2m_Slope.tif"
@@ -136,16 +159,19 @@ def SlopeAggregate_2to10(): # This function downsamples the Slope 2m resolution 
     
 SlopeAggregate_2to10() # Run the rasample function.
 
+print('Slope downsampling complete.')
+
+print('Reclassifying slope for Wildcat helicopter parameters.')
+
 def SlopeClassifyWildcat(): # This function reclassifies the 10m slope dataset from Degrees to 
                             # numerical values representing classes defined for the Wildcat 
                             # Slope Requirements in the instruction manual document. 
     
-    #Set processing environment, matching the parent folder location for the project:
-    env.workspace = r"C:\Users\Lieutenant\EGM722_Coursework_AlexMason_B01039763"
+    #Set processing environment, matching the parent folder location for the project, defined as home_folder in script header:
+    env.workspace = home_folder
     
-    # Set the extent of the processing environment using a feature class, defined by the user 
-    # and saved in 'InputDataAOI' folder as a shapefile 'HLS_AOI.shp'.
-    arcpy.env.extent = r"\InputDataAOI\HLS_AOI.shp"
+    # Set the extent of the processing environment using a feature class, defined by the user, set in the script header as process_extent: 
+    arcpy.env.extent = process_extent
     
     # Set local variables:
     # Set location of the input 10m Slope dataset:
@@ -166,16 +192,19 @@ def SlopeClassifyWildcat(): # This function reclassifies the 10m slope dataset f
     
 SlopeClassifyWildcat() # Run the reclassification for Wildcat Helicopter requirements.
 
+print('Wildcat slope reclassification complete.')
+
+print('Reclassifying slope for Merlin helicopter parameters.')
+
 def SlopeClassifyMerlin(): # This function reclassifies the 10m slope dataset from Degrees to 
                             # numerical values representing classes defined for the Merlin 
                             # Slope Requirements in the instruction manual document. 
     
-    #Set processing environment, matching the parent folder location for the project:
-    env.workspace = r"C:\Users\Lieutenant\EGM722_Coursework_AlexMason_B01039763"
+    #Set processing environment, matching the parent folder location for the project, defined as home_folder in script header:
+    env.workspace = home_folder
     
-    # Set the extent of the processing environment using a feature class, defined by the user 
-    # and saved in 'InputDataAOI' folder as a shapefile 'HLS_AOI.shp'.
-    arcpy.env.extent = r"\InputDataAOI\HLS_AOI.shp"
+    # Set the extent of the processing environment using a feature class, defined by the user, set in the script header as process_extent: 
+    arcpy.env.extent = process_extent
     
     # Set local variables:
     # Set location of the input 10m Slope dataset:
@@ -196,16 +225,19 @@ def SlopeClassifyMerlin(): # This function reclassifies the 10m slope dataset fr
     
 SlopeClassifyMerlin() # Run the reclassification for Wildcat Helicopter requirements.
 
+print('Merlin slope reclassification complete.')
+
+print('Reclassifying slope for Chinook helicopter parameters.')
+
 def SlopeClassifyChinook(): # This function reclassifies the 10m slope dataset from Degrees to 
                             # numerical values representing classes defined for the Chinook 
                             # Slope Requirements in the instruction manual document. 
     
-    #Set processing environment, matching the parent folder location for the project:
-    env.workspace = r"C:\Users\Lieutenant\EGM722_Coursework_AlexMason_B01039763"
+    #Set processing environment, matching the parent folder location for the project, defined as home_folder in script header:
+    env.workspace = home_folder
     
-    # Set the extent of the processing environment using a feature class, defined by the user 
-    # and saved in 'InputDataAOI' folder as a shapefile 'HLS_AOI.shp'.
-    arcpy.env.extent = r"\InputDataAOI\HLS_AOI.shp"
+    # Set the extent of the processing environment using a feature class, defined by the user, set in the script header as process_extent: 
+    arcpy.env.extent = process_extent
     
     # Set local variables:
     # Set location of the input 10m Slope dataset:
@@ -226,17 +258,20 @@ def SlopeClassifyChinook(): # This function reclassifies the 10m slope dataset f
     
 SlopeClassifyChinook() # Run the reclassification for Wildcat Helicopter requirements.
 
+print('Chinook slope reclassification complete.')
+
+print('Running Weighted Overlay for Wildcat helicopter parameters.')
+
 def Wildcat_Multicriteria(): # This function sets up the multicriteria analysis process for the Wildcat Helicopter.
     
-    # Set processing environment, matching the parent folder location for the project:
-    env.workspace = r"C:\Users\Lieutenant\EGM722_Coursework_AlexMason_B01039763"
+    #Set processing environment, matching the parent folder location for the project, defined as home_folder in script header:
+    env.workspace = home_folder
     
-    # Set the extent of the processing environment using a feature class, defined by the user 
-    # and saved in 'InputDataAOI' folder as a shapefile 'HLS_AOI.shp'.
-    arcpy.env.extent = r"\InputDataAOI\HLS_AOI.shp"
+    # Set the extent of the processing environment using a feature class, defined by the user, set in the script header as process_extent: 
+    arcpy.env.extent = process_extent
 
     # Set local variables
-    inRasterLULC = r"\InputDataLULC\outReclassifyLULC.tif"
+    inRasterLULC = r"\outReclassifyLULC.tif"
     inRasterWildcatSlope = "outReclassifySlopeWildcat.tif"
 
     remapLULC = RemapValue([[0,"Restricted"],[1,1],[2,2],[3,3],["NODATA","NODATA"]]) # Define the remap table for the LULC classified raster. Value, remapped value pairs.
@@ -255,17 +290,20 @@ def Wildcat_Multicriteria(): # This function sets up the multicriteria analysis 
     
 Wildcat_Multicriteria() # Run the weighted multicriteria analysis for Wildcat Helicopter requirements.
 
+print('Wildcat Weighted Overlay complete.')
+
+print('Running Weighted Overlay for Merlin helicopter parameters.')
+
 def Merlin_Multicriteria(): # This function sets up the multicriteria analysis process for the Merlin Helicopter.
     
-    # Set processing environment, matching the parent folder location for the project:
-    env.workspace = r"C:\Users\Lieutenant\EGM722_Coursework_AlexMason_B01039763"
+    #Set processing environment, matching the parent folder location for the project, defined as home_folder in script header:
+    env.workspace = home_folder
     
-    # Set the extent of the processing environment using a feature class, defined by the user 
-    # and saved in 'InputDataAOI' folder as a shapefile 'HLS_AOI.shp'.
-    arcpy.env.extent = r"\InputDataAOI\HLS_AOI.shp"
+    # Set the extent of the processing environment using a feature class, defined by the user, set in the script header as process_extent: 
+    arcpy.env.extent = process_extent
 
     # Set local variables
-    inRasterLULC = r"\InputDataLULC\outReclassifyLULC.tif"
+    inRasterLULC = r"\outReclassifyLULC.tif"
     inRasterMerlinSlope = "outReclassifySlopeMerlin.tif"
 
     remapLULC = RemapValue([[0,"Restricted"],[1,1],[2,2],[3,3],["NODATA","NODATA"]]) # Define the remap table for the LULC classified raster. Value, remapped value pairs.
@@ -284,17 +322,20 @@ def Merlin_Multicriteria(): # This function sets up the multicriteria analysis p
     
 Merlin_Multicriteria() # Run the weighted multicriteria analysis for Merlin Helicopter requirements.
 
+print('Merlin Weighted Overlay complete.')
+
+print('Running Weighted Overlay for Wildcat helicopter parameters.')
+
 def Chinook_Multicriteria(): # This function sets up the multicriteria analysis process for the Chinook Helicopter.
     
-    #Set processing environment, matching the parent folder location for the project:
-    env.workspace = r"C:\Users\Lieutenant\EGM722_Coursework_AlexMason_B01039763"
+    #Set processing environment, matching the parent folder location for the project, defined as home_folder in script header:
+    env.workspace = home_folder
     
-    # Set the extent of the processing environment using a feature class, defined by the user 
-    # and saved in 'InputDataAOI' folder as a shapefile 'HLS_AOI.shp'.
-    arcpy.env.extent = r"\InputDataAOI\HLS_AOI.shp"
+    # Set the extent of the processing environment using a feature class, defined by the user, set in the script header as process_extent: 
+    arcpy.env.extent = process_extent
 
     # Set local variables
-    inRasterLULC = r"\InputDataLULC\outReclassifyLULC.tif"
+    inRasterLULC = r"\outReclassifyLULC.tif"
     inRasterChinookSlope = "outReclassifySlopeChinook.tif"
 
     remapLULC = RemapValue([[0,"Restricted"],[1,1],[2,2],[3,3],["NODATA","NODATA"]]) # Define the remap table for the LULC classified raster. Value, remapped value pairs.
@@ -313,4 +354,6 @@ def Chinook_Multicriteria(): # This function sets up the multicriteria analysis 
     
 Chinook_Multicriteria() # Run the weighted multicriteria analysis for Chinook Helicopter requirements.
 
+print('Chinook Weighted Overlay complete.')
 
+print('Process finished successfully.')
