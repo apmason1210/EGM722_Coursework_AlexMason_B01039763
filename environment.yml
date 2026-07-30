@@ -1,16 +1,3 @@
-name: egm722
-channels:
-  - conda-forge
-  - defaults
-  - esri
-dependencies:
-  - python
-  - geopandas
-  - cartopy>=0.21
-  - jupyterlab
-  - ipywidgets
-  - rasterio
-  - pyepsg
-  - folium
-  - ipympl
-  - arcpy
+Please note, this project utilises the pre-supplied default conda environment within ArcGIS Pro called arcgispro-py3.
+
+The environment file is too large to host on GitHub.com. Users must use the supplied environment within their installation of ArcGIS Pro 3.XX.
